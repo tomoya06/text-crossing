@@ -13,7 +13,8 @@ export const ActivityStates = {
   ATHOME: "atHome",
   HANGOUT: "hangOut",
   HUNTING: "hunting",
-  FINDING: "finding"
+  FINDING: "finding",
+  ATMARKET: "market"
 };
 
 export default class Heroine {
@@ -34,7 +35,7 @@ export default class Heroine {
   }
 
   _bindTime() {
-    TimeController.onWholeMinute(this.activityIsGoodForHealth);
+    TimeController.onWholeMinute(this._activityIsGoodForHealth);
   }
 
   _weatherDamageHealth(wt) {
@@ -53,15 +54,17 @@ export default class Heroine {
     this.activityState = stateName;
   }
 
-  activityIsGoodForHealth() {
+  _activityIsGoodForHealth() {
     switch (this.activityState) {
       case ActivityStates.ATHOME:
         this.badForHealth(-0.2);
         break;
       case ActivityStates.HANGOUT:
+      case ActivityStates.ATMARKET:
         this.badForHealth(0);
         break;
-      default:
+      case ActivityStates.HUNTING:
+      case ActivityStates.FINDING:
         this.badForHealth(0.1);
         this.makeMeHungry(0.1);
         break;

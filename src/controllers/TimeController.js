@@ -3,6 +3,8 @@ import EventEmitter from "events";
 
 const TIMECTRL_EVENT_NAMES = {
   TIME_CHANGE: "timeChange",
+  ONE_FRAME: "oneFrame",
+  DESKTOP_WHOLE_SECOND: "desktopWholeSecond",
   WHOLE_MINUTE: "wholeMinute",
   WHOLE_CLOCK: "wholeClock",
   NEW_DAY: "newDay"
@@ -17,8 +19,12 @@ const TIMECTRL_EVENT_NAMES = {
 
 class TimeController {
   constructor() {
-    this.time = moment("2004-01-01 09:00:00");
+    this.gameTime = moment("2004-01-01 09:00:00");
+    this.desktopTime = moment();
+    this.deltaDesktopTime = 0;
     this.speed = 60 * 10;
+
+    this._timeInterval = null;
 
     this._timeEmitter = new EventEmitter();
     this._startTime();
@@ -35,15 +41,15 @@ class TimeController {
   }
 
   /**
-   *
+   * gametime strikes whole hour
    * @param {timeCallback} fn
    */
   onWholeClock(fn) {
     this._timeEmitter.on(TIMECTRL_EVENT_NAMES.WHOLE_CLOCK, fn);
   }
-  
+
   /**
-   *
+   * gametime strikes whole minute
    * @param {timeCallback} fn
    */
   onWholeMinute(fn) {
@@ -52,28 +58,52 @@ class TimeController {
 
   _startTime() {
     const timeTask = () => {
-      const lastTime = this.time.clone();
-      this.time.add(this.speed, "s");
-      this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.TIME_CHANGE, this.time);
+      this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.ONE_FRAME);
 
-      if (lastTime.hour() !== this.time.hour()) {
-        this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.WHOLE_CLOCK, this.time);
+      const lastDesktopTime = this.desktopTime.clone();
+      this.desktopTime = moment();
+      this.deltaDesktopTime += this.desktopTime.diff(lastDesktopTime);
+
+      // update game time every one second in desktop
+      if (this.deltaDesktopTime >= 1000) {
+        this._timeEmitter.emit(
+          TIMECTRL_EVENT_NAMES.DESKTOP_WHOLE_SECOND,
+          this.gameTime
+        );
+        this.deltaDesktopTime = 0;
+        this._updateGametime();
       }
 
-      if (lastTime.date() !== this.time.date()) {
-        this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.NEW_DAY, this.time);
-      }
-
-      if (lastTime.minute() !== this.time.minute()) {
-        this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.WHOLE_MINUTE, this.time);
-      }
+      requestAnimationFrame(timeTask);
     };
-    this.timeInterval = setInterval(timeTask, 100);
+    // this.timeInterval = setInterval(timeTask, 100);
+    this._timeInterval = requestAnimationFrame(timeTask);
+  }
+
+  _updateGametime() {
+    const lastTime = this.gameTime.clone();
+    this.gameTime.add(this.speed, "s");
+    this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.TIME_CHANGE, this.gameTime);
+
+    if (lastTime.hour() !== this.gameTime.hour()) {
+      this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.WHOLE_CLOCK, this.gameTime);
+    }
+
+    if (lastTime.date() !== this.gameTime.date()) {
+      this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.NEW_DAY, this.gameTime);
+    }
+
+    if (lastTime.minute() !== this.gameTime.minute()) {
+      this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.WHOLE_MINUTE, this.gameTime);
+    }
   }
 
   _destructor() {
     window.addEventListener("beforeunload", () => {
-      clearInterval(this.timeInterval);
+      // clearInterval(this.timeInterval);
+      console.log("remove all timers");
+      cancelAnimationFrame(this._timeInterval);
+      this._timeEmitter.removeAllListeners();
     });
   }
 }
