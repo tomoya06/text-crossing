@@ -19,6 +19,6 @@ module.exports = {
         "vue"
     ],
     "rules": {
-        "no-unused-vars": "warning"
+        "no-unused-vars": "warn"
     }
 };

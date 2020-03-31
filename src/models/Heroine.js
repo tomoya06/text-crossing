@@ -71,6 +71,10 @@ export default class Heroine {
     }
   }
 
+  updateName(newName) {
+    this.name = newName;
+  }
+
   /**
    *
    * @param {number} val if val < 0, then it's good for health

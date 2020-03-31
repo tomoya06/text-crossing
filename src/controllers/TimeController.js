@@ -22,7 +22,7 @@ class TimeController {
     this.gameTime = moment("2004-01-01 09:00:00");
     this.desktopTime = moment();
     this.deltaDesktopTime = 0;
-    this.speed = 60 * 10;
+    this.speed = 60 * 1;
 
     this._timeInterval = null;
 
@@ -62,7 +62,10 @@ class TimeController {
 
       const lastDesktopTime = this.desktopTime.clone();
       this.desktopTime = moment();
-      this.deltaDesktopTime += this.desktopTime.diff(lastDesktopTime);
+      const curDeltaDesktopTime = this.desktopTime.diff(lastDesktopTime);
+      this.deltaDesktopTime += curDeltaDesktopTime;
+
+      this._updateGametime(curDeltaDesktopTime);
 
       // update game time every one second in desktop
       if (this.deltaDesktopTime >= 1000) {
@@ -71,7 +74,6 @@ class TimeController {
           this.gameTime
         );
         this.deltaDesktopTime = 0;
-        this._updateGametime();
       }
 
       requestAnimationFrame(timeTask);
@@ -80,9 +82,9 @@ class TimeController {
     this._timeInterval = requestAnimationFrame(timeTask);
   }
 
-  _updateGametime() {
+  _updateGametime(desktopTime) {
     const lastTime = this.gameTime.clone();
-    this.gameTime.add(this.speed, "s");
+    this.gameTime.add(this.speed * desktopTime, "milliseconds");
     this._timeEmitter.emit(TIMECTRL_EVENT_NAMES.TIME_CHANGE, this.gameTime);
 
     if (lastTime.hour() !== this.gameTime.hour()) {
