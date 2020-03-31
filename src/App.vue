@@ -7,6 +7,7 @@
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import './controllers/WorldController';
 
 export default {
   name: 'App',
