@@ -21,7 +21,7 @@ class WeatherController {
     this.init();
 
     this.weatherState = WEATHER_STATES.SUNNY;
-    this.todayRainingRate = 1;
+    this.todayRainingRate = 0.2;
     this.rainRate = 0;
     this.windRate = 0;
 

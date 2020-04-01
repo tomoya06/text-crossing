@@ -39,17 +39,26 @@ export default class Package {
     } else {
       this.items[index].amount -= amount;
     }
+    this.cleanEmptyItem();
     return true;
   }
 
-  use(index, amount = 1) {
-    if (!this.items[index]) {
-      return null;
+  use(itemId, amount = 1) {
+    const packageItem = this.find(itemId);
+    if (!packageItem) {
+      return;
     }
-    if (this.items[index].amount < amount) {
-      return null;
-    }
-    this.items[index].amount -= amount;
-    return new PackageItem(this.items[index].item, amount);
+    amount = packageItem.amount < amount ? packageItem.amount : amount;
+    packageItem.amount -= amount;
+    this.cleanEmptyItem();
+    return new PackageItem(packageItem.item, amount);
+  }
+
+  find(itemId) {
+    return this.items.find(item => item.item.id === itemId);
+  }
+
+  cleanEmptyItem() {
+    this.items = this.items.filter(packageItem => packageItem.amount > 0);
   }
 }

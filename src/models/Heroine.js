@@ -1,10 +1,9 @@
 import Package from "./Package";
-import WeatherController, {
-  WEATHER_STATES
-} from "../controllers/WeatherController";
+import WeatherController from "../controllers/WeatherController";
 import TimeController from "../controllers/TimeController";
 
-import activity from '../data/activity';
+import activity from "../data/activity";
+import { ItemTypes } from "./Items/Item";
 
 export const HealthStates = {
   FINE: "FINE",
@@ -46,8 +45,12 @@ export default class Heroine {
   _activityIsGoodForHealth() {
     const damageData = activity.damageHealthAndFood[this.activityState];
     if (damageData && damageData.length === 2) {
-      const totalHealthDamage = damageData[0] * (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
-      const totalFoodDamage = damageData[1] * (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
+      const totalHealthDamage =
+        damageData[0] *
+        (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
+      const totalFoodDamage =
+        damageData[1] *
+        (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
       this.badForHealth(totalHealthDamage);
       this.makeMeHungry(totalFoodDamage);
     }
@@ -59,6 +62,20 @@ export default class Heroine {
 
   updateName(newName) {
     this.name = newName;
+  }
+
+  eatFood(itemId, amount) {
+    const packageItem = this.package.find(itemId);
+    if (!packageItem) {
+      return false;
+    }
+    if (packageItem.item.type !== ItemTypes.FOOD) {
+      return false;
+    }
+    const usedItem = this.package.use(itemId, amount);
+    const totalTypeValue = usedItem.item.typeValue * usedItem.amount;
+    this.makeMeHungry(0 - totalTypeValue);
+    return true;
   }
 
   /**

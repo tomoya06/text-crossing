@@ -51,6 +51,10 @@ class HeroineController {
     this.heroine.changeActivity(ActivityStates.ATHOME);
   }
 
+  eatFood(itemId, amount) {
+    this.heroine.eatFood(itemId, amount);
+  }
+
   triggerGoHunting() {
     this.heroine.changeActivity(ActivityStates.HUNTING);
     this._triggerOutDoorActivity(OUTDOOR_ACTIVITY_TYPE.HUNTING);
