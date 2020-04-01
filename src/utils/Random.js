@@ -1,7 +1,7 @@
 class Random {
   /**
    * 
-   * @param {string[]} list 
+   * @param {any[]} list 
    */
   pickOneItem(list) {
     return list[Math.floor(Math.random() * list.length)];

@@ -7,7 +7,7 @@ export const ItemTypes = {
 
 export default class Item {
   constructor(name, weight, type, typeValue, value) {
-    this.name = name;
+    this.id = name;
     this.weight = weight;
     this.type = type;
     /**@type {number} 属性价值 */

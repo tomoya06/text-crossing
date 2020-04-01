@@ -1,13 +1,16 @@
 import Island from "../models/Island";
-import TimeController from "./TimeController";
-import WeatherController from "./WeatherController";
 
-import Random from '../utils/Random';
+import Random from "../utils/Random";
 
-import foundRate from '../data/foundRate';
+import foundRate from "../data/foundRate";
+import activity from "../data/activity";
 
-import AllFood from '../models/Items/FOOD';
-import AllHouse from '../models/Items/HOUSE';
+import AllFood from "../models/Items/FOOD";
+import AllHouse from "../models/Items/HOUSE";
+
+import "./WeatherController";
+
+import * as Promise from "bluebird";
 
 class WorldController {
   constructor() {
@@ -17,36 +20,46 @@ class WorldController {
   }
 
   init() {
-    TimeController.onTimeChange(tm => {
-      console.log(tm.format("hh:mm:ss"));
-    });
-    WeatherController.onWeatherChange(wt => {
-      console.log(`weather update: ${JSON.stringify(wt)}`);
+    // TimeController.onTimeChange(tm => {
+    //   console.log(tm.format("hh:mm:ss"));
+    // });
+    // WeatherController.onWeatherChange(wt => {
+    //   console.log(`weather update: ${JSON.stringify(wt)}`);
+    // });
+  }
+
+  goHunting() {
+    const tm = this._waitingTime();
+    return Promise.delay(tm).then(() => {
+      const allFoods = Object.keys(foundRate.food);
+      allFoods.push(null);
+      const pickedFood = Random.pickOneItem(allFoods);
+      if (!pickedFood) return Promise.resolve(null);
+      const rate = foundRate.food[pickedFood];
+      if (Random.bool(rate) && AllFood[pickedFood]) {
+        return Promise.resolve(new AllFood[pickedFood]());
+      }
+      return Promise.resolve(null);
     });
   }
 
-  huntResult() {
-    const allFoods = Object.keys(foundRate.food);
-    allFoods.push(null);
-    const pickedFood = Random.pickOneItem(allFoods);
-    if (!pickedFood) return pickedFood;
-    const rate = foundRate.food[pickedFood];
-    if (Random.bool(rate) && AllFood[pickedFood]) {
-      return new AllFood[pickedFood];
-    }
-    return null;
+  goFindingMaterial() {
+    const tm = this._waitingTime();
+    return Promise.delay(tm).then(() => {
+      const allHouses = Object.keys(foundRate.house);
+      allHouses.push(null);
+      const pickedHouseMaterial = Random.pickOneItem(allHouses);
+      if (!pickedHouseMaterial) return Promise.resolve(null);
+      const rate = foundRate.house[pickedHouseMaterial];
+      if (Random.bool(rate) && AllHouse[pickedHouseMaterial]) {
+        return Promise.resolve(new AllHouse[pickedHouseMaterial]());
+      }
+      return Promise.resolve(null);
+    });
   }
-  
-  findHouseResult() {
-    const allHouses = Object.keys(foundRate.house);
-    allHouses.push(null);
-    const pickedHouseMaterial = Random.pickOneItem(allHouses);
-    if (!pickedHouseMaterial) return pickedHouseMaterial;
-    const rate = foundRate.house[pickedHouseMaterial];
-    if (Random.bool(rate) && AllHouse[pickedHouseMaterial]) {
-      return new AllHouse[pickedHouseMaterial];
-    }
-    return null;
+
+  _waitingTime() {
+    return Math.random() * Random.pickOneItem(activity.huntingWaitingTime);
   }
 }
 

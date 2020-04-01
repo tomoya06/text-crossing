@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "bluebird": "^3.7.2",
     "chance": "^1.1.4",
     "core-js": "^3.6.4",
     "moment": "^2.24.0",

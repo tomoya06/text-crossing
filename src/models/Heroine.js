@@ -4,6 +4,8 @@ import WeatherController, {
 } from "../controllers/WeatherController";
 import TimeController from "../controllers/TimeController";
 
+import activity from '../data/activity';
+
 export const HealthStates = {
   FINE: "FINE",
   SICK: "SICK"
@@ -23,28 +25,15 @@ export default class Heroine {
     this.reputation = 0;
     this.health = 100;
     this.food = 100;
-    this.package = new Package(1000);
+    this.package = new Package(Number.POSITIVE_INFINITY);
     this.activityState = ActivityStates.ATHOME;
 
-    this._bindWeather();
+    // this._bindWeather();
     this._bindTime();
   }
 
-  _bindWeather() {
-    WeatherController.onWeatherChange(this._weatherDamageHealth);
-  }
-
   _bindTime() {
-    TimeController.onWholeMinute(this._activityIsGoodForHealth);
-  }
-
-  _weatherDamageHealth(wt) {
-    if (wt.rainRate > 0.2 && this.activityState !== ActivityStates.ATHOME) {
-      this.badForHealth(2);
-    }
-    if (wt.weatherState === WEATHER_STATES.SUNNY) {
-      this.badForHealth(-1);
-    }
+    TimeController.onWholeMinute(this._activityIsGoodForHealth.bind(this));
   }
 
   changeActivity(stateName) {
@@ -55,20 +44,17 @@ export default class Heroine {
   }
 
   _activityIsGoodForHealth() {
-    switch (this.activityState) {
-      case ActivityStates.ATHOME:
-        this.badForHealth(-0.2);
-        break;
-      case ActivityStates.HANGOUT:
-      case ActivityStates.ATMARKET:
-        this.badForHealth(0);
-        break;
-      case ActivityStates.HUNTING:
-      case ActivityStates.FINDING:
-        this.badForHealth(0.1);
-        this.makeMeHungry(0.1);
-        break;
+    const damageData = activity.damageHealthAndFood[this.activityState];
+    if (damageData && damageData.length === 2) {
+      const totalHealthDamage = damageData[0] * (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
+      const totalFoodDamage = damageData[1] * (WeatherController.rainRate * 5 + WeatherController.windRate * 3 + 0.6);
+      this.badForHealth(totalHealthDamage);
+      this.makeMeHungry(totalFoodDamage);
     }
+  }
+
+  collectObjectToCarry(item) {
+    return this.package.put(item);
   }
 
   updateName(newName) {

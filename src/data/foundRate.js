@@ -6,7 +6,7 @@ export default {
     'Tomato': 0.3,
   },
   'house': {
-    'Stone': 0.1,
-    'Wood': 0.2,
+    'Stone': 0.3,
+    'Wood': 0.3,
   }
 }

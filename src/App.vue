@@ -19,7 +19,10 @@
                   <v-toolbar-title>Login form</v-toolbar-title>
                   <v-spacer></v-spacer>
                 </v-toolbar>
-                <v-card-text class="flex-grow-1"></v-card-text>
+                <v-card-text class="flex-grow-1">
+                  <span>{{heroine.name}}</span>
+                  <span>{{heroine.food}}</span>
+                </v-card-text>
                 <v-card-actions class="grey darken-3 d-flex">
                   <v-text-field
                     solo
@@ -50,15 +53,44 @@
 </template>
 <script>
 import TimeController from "./controllers/TimeController";
+import WeatherController from "./controllers/WeatherController";
+import HeroineController, { HEROINE_EVENTS } from "./controllers/HeroineController";
 
 export default {
   data() {
     return {
-      displayGameTime: ""
+      displayGameTime: "",
+      TimeController,
+      HeroineController,
+      WeatherController,
     };
   },
   created() {
+    window.game = this;
     this.bindTime();
+    this.HeroineController.createHeroine("BETA", "MY HOUSE");
+
+    this.HeroineController.addEventListener(HEROINE_EVENTS.FOUNDED, (result) => {
+      console.log(`FOUNDED!!`, result);
+      if (result) {
+        this.HeroineController.confirmFounded(true);
+      }
+    })
+
+    this.HeroineController.addEventListener(HEROINE_EVENTS.FINISHED_FINDING, (result) => {
+      if (result === true) {
+        console.log('ADDED TO PACKAGE');
+      } else if (result === false) {
+        console.log('CANT ADD TO PACKAGE. MAYBE OVERWEIGHT');
+      } else {
+        console.log('NOTHING HAPPENDED TO YOUR PACKAGE');
+      }
+    })
+  },
+  computed: {
+    heroine() {
+      return this.HeroineController.heroine;
+    }
   },
   methods: {
     bindTime() {

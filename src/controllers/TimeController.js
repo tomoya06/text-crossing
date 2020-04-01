@@ -22,14 +22,18 @@ class TimeController {
     this.gameTime = moment("2004-01-01 09:00:00");
     this.desktopTime = moment();
     this.deltaDesktopTime = 0;
-    this.speed = 60 * 1;
+    this.speed = 60 * 5;
 
     this._timeInterval = null;
 
     this._timeEmitter = new EventEmitter();
-    this._startTime();
 
+    this.init();
+    this._startTime();
     this._destructor();
+  }
+
+  init() {
   }
 
   /**
@@ -54,6 +58,14 @@ class TimeController {
    */
   onWholeMinute(fn) {
     this._timeEmitter.on(TIMECTRL_EVENT_NAMES.WHOLE_MINUTE, fn);
+  }
+
+  /**
+   * gametime strikes whole minute
+   * @param {timeCallback} fn
+   */
+  onNewDay(fn) {
+    this._timeEmitter.on(TIMECTRL_EVENT_NAMES.NEW_DAY, fn);
   }
 
   _startTime() {
