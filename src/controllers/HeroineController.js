@@ -22,6 +22,7 @@ export const HEROINE_EVENTS = {
 
 class HeroineController {
   constructor() {
+    /**@type {Heroine} */
     this.heroine = null;
     this.house = null;
 
@@ -41,10 +42,6 @@ class HeroineController {
     }
     return false;
   }
-
-  // confirmFounded(flag) {
-  //   this._handleConfirmFounded(flag);
-  // }
 
   addEventListener(evt, fn) {
     this._eventEmitter.on(evt, fn);
@@ -73,16 +70,6 @@ class HeroineController {
       amount,
     });
   }
-
-  // triggerGoHunting() {
-  //   this.heroine.changeActivity(ActivityStates.HUNTING);
-  //   this._triggerOutDoorActivity(OUTDOOR_ACTIVITY_TYPE.HUNTING);
-  // }
-
-  // triggerGoFinding() {
-  //   this.heroine.changeActivity(ActivityStates.FINDING);
-  //   this._triggerOutDoorActivity(OUTDOOR_ACTIVITY_TYPE.FINDING);
-  // }
 
   onActivityStateChange(fn) {
     this.heroine.addEventListener(

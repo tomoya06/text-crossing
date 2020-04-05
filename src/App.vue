@@ -80,27 +80,6 @@ export default {
     window.game = this;
     this.bindTime();
 
-    this.HeroineController.addEventListener(
-      HEROINE_EVENTS.FOUNDED,
-      (result) => {
-        console.log(`FOUNDED!!`, result);
-        if (result) {
-          this.HeroineController.confirmFounded(true);
-        }
-      }
-    );
-    this.HeroineController.addEventListener(
-      HEROINE_EVENTS.FINISHED_FINDING,
-      (result) => {
-        if (result === true) {
-          console.log("ADDED TO PACKAGE");
-        } else if (result === false) {
-          console.log("CANT ADD TO PACKAGE. MAYBE OVERWEIGHT");
-        } else {
-          console.log("NOTHING HAPPENDED TO YOUR PACKAGE");
-        }
-      }
-    );
     this.HeroineController.onActivityStateChange((state) => {
       this.heroineState = state;
     });
