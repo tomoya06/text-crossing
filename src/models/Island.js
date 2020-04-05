@@ -1,5 +1,5 @@
 export default class Island {
-  constructor() {
-    
+  constructor(name) {
+    this.name = name;
   }
 }

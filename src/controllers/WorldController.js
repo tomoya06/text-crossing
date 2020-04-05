@@ -8,27 +8,46 @@ import activity from "../data/activity";
 import AllFood from "../models/Items/FOOD";
 import AllHouse from "../models/Items/HOUSE";
 
+import HeroineController from "./HeroineController";
 import "./WeatherController";
 
 import * as Promise from "bluebird";
 
 class WorldController {
   constructor() {
-    this.island = new Island();
-
-    this.init();
-  }
-
-  init() {
-    // TimeController.onTimeChange(tm => {
-    //   console.log(tm.format("hh:mm:ss"));
-    // });
-    // WeatherController.onWeatherChange(wt => {
-    //   console.log(`weather update: ${JSON.stringify(wt)}`);
-    // });
+    this.island = new Island("MY ISLAND");
+    HeroineController.createHeroine("NOBODY", "MY HOUSE");
   }
 
   goHunting() {
+    return this._goHunting().then((result) => {
+      if (result) {
+        HeroineController.collectItem(result);
+        return Promise.resolve({
+          item: result,
+          amount: 1,
+        });
+      } else {
+        return Promise.reject(new Error("FOUND NOTHING"));
+      }
+    });
+  }
+
+  goFindingMaterial() {
+    return this._goFindingMaterial().then((result) => {
+      if (result) {
+        HeroineController.collectItem(result);
+        return Promise.resolve({
+          item: result,
+          amount: 1,
+        });
+      } else {
+        return Promise.reject(new Error("FOUND NOTHING"));
+      }
+    });
+  }
+
+  _goHunting() {
     const tm = this._waitingTime();
     return Promise.delay(tm).then(() => {
       const allFoods = Object.keys(foundRate.food);
@@ -43,7 +62,7 @@ class WorldController {
     });
   }
 
-  goFindingMaterial() {
+  _goFindingMaterial() {
     const tm = this._waitingTime();
     return Promise.delay(tm).then(() => {
       const allHouses = Object.keys(foundRate.house);

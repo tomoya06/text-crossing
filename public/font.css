@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "Turbo Pascal";
+  src: url('./font/Turbo\ Pascal\ Font.ttf');
+}
+
+* {
+  font-family: "Turbo Pascal" !important;
+}

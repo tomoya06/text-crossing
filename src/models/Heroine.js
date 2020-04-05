@@ -5,6 +5,8 @@ import TimeController from "../controllers/TimeController";
 import activity from "../data/activity";
 import { ItemTypes } from "./Items/Item";
 
+import EventEmitter from "events";
+
 export const HealthStates = {
   FINE: "FINE",
   SICK: "SICK"
@@ -18,6 +20,10 @@ export const ActivityStates = {
   ATMARKET: "market"
 };
 
+export const HEROINE_EVENT_NAMES = {
+  UPDATE_ACTIVITY_STATE: 'updateActivity',
+}
+
 export default class Heroine {
   constructor(name) {
     this.name = name;
@@ -25,14 +31,24 @@ export default class Heroine {
     this.health = 100;
     this.food = 100;
     this.package = new Package(Number.POSITIVE_INFINITY);
-    this.activityState = ActivityStates.ATHOME;
+    this.activityState = "";
 
-    // this._bindWeather();
+    this._eventEmitter = new EventEmitter();
+
     this._bindTime();
+    this._init();
+  }
+
+  _init() {
+    this.changeActivity(ActivityStates.ATHOME);
   }
 
   _bindTime() {
     TimeController.onWholeMinute(this._activityIsGoodForHealth.bind(this));
+  }
+
+  addEventListener(evt, fn) {
+    this._eventEmitter.on(evt, fn);
   }
 
   changeActivity(stateName) {
@@ -40,6 +56,7 @@ export default class Heroine {
       return;
     }
     this.activityState = stateName;
+    this._eventEmitter.emit(HEROINE_EVENT_NAMES.UPDATE_ACTIVITY_STATE, this.activityState);
   }
 
   _activityIsGoodForHealth() {

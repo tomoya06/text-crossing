@@ -2,6 +2,9 @@ import TimeController from "./TimeController";
 import MathWorks from "../utils/MathWorks";
 
 import EventEmitter from "events";
+import Random from "../utils/Random";
+
+import weather from '../data/weather';
 
 const EVENT_NAMES = {
   WEATHER_UPDATE: "weatherUpdate",
@@ -21,7 +24,7 @@ class WeatherController {
     this.init();
 
     this.weatherState = WEATHER_STATES.SUNNY;
-    this.todayRainingRate = 0.2;
+    this.todayRainingChance = 0.1;
     this.rainRate = 0;
     this.windRate = 0;
 
@@ -32,6 +35,9 @@ class WeatherController {
     TimeController.onWholeClock(() => {
       this.updateWeather();
     });
+    TimeController.onNewDay(() => {
+      this.updateRainingChance();
+    })
   }
 
   onWeatherChange(fn) {
@@ -39,7 +45,7 @@ class WeatherController {
   }
 
   updateWeather() {
-    this.rainRate = MathWorks.powRate(1, this.todayRainingRate, 0.1);
+    this.rainRate = MathWorks.powRate(1, this.todayRainingChance, 0.1);
     this.windRate = MathWorks.powRate(1, 0.2, 0.1);
     this._updateWeatherState();
     this._timeEmitter.emit(EVENT_NAMES.WEATHER_UPDATE, {
@@ -47,6 +53,10 @@ class WeatherController {
       windRate: this.windRate,
       weatherState: this.weatherState,
     })
+  }
+
+  updateRainingChance() {
+    this.todayRainingChance = Random.pickOneItem(weather.rainingRate);
   }
 
   _updateWeatherState() {
