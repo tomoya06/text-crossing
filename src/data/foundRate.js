@@ -1,12 +1,12 @@
 export default {
   'food': {
-    'Chicken': 1,
-    'ChoySum': 1,
-    'Pork': 1,
-    'Tomato': 1,
+    'Chicken': 0.1,
+    'ChoySum': 0.1,
+    'Pork': 0.05,
+    'Tomato': 0.3,
   },
   'house': {
-    'Stone': 1,
-    'Wood': 1,
+    'Stone': 0.3,
+    'Wood': 0.3,
   }
 }
