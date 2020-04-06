@@ -95,6 +95,10 @@ export default class Heroine {
     return true;
   }
 
+  dropItem(itemId, amount) {
+    return this.package.use(itemId, amount);
+  }
+
   /**
    *
    * @param {number} val if val < 0, then it's good for health

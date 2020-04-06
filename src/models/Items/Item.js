@@ -1,7 +1,7 @@
 export const ItemTypes = {
   'WEALTH': 'WEALTH',
   'FOOD': 'FOOD',
-  'RAW_CREATION': 'RAW_CREATION',
+  'RAW_CREATION': 'RAW',
   'HOUSE': 'HOUSE'
 }
 

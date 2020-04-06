@@ -12,16 +12,22 @@
         <v-card-title>MY BACKPACK</v-card-title>
         <v-divider></v-divider>
         <v-card-text style="height: 300px;">
-          <v-row>
+          <v-row
+            v-for="({ title, items }, typeIndex) in packageItems"
+            :key="typeIndex"
+          >
+            <v-col cols="12">
+              <span>{{ title }}</span>
+            </v-col>
             <v-col
               cols="2"
-              v-for="(item, index) in packageItems"
+              v-for="(item, index) in items"
               :class="[
                 'text-center',
                 'package-item',
-                selectedItemIdx === index && 'selected',
+                item.item.id === selectedItemId && 'selected',
               ]"
-              @click="selectedItemIdx = index"
+              @click="selectedItemId = item.item.id"
               :key="index"
             >
               {{ item.item.icon }}
@@ -30,12 +36,23 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions v-if="itemHasAction">
-          <span class="pr-2">{{ selectedItem | foodItemDisplay }}</span>
-          <v-divider></v-divider>
-          <span v-if="selectedItem.item.type === ItemTypes.FOOD">
-            <v-btn class="mr-1" @click="handleEatOne">EAT</v-btn>
-            <v-btn class="mr-1" @click="handleDropOne">DROP</v-btn>
-          </span>
+          <v-row>
+            <v-col :cols="6">
+              <div
+                class="d-flex flex-column"
+                v-html="itemDisplay(selectedItem)"
+              ></div>
+            </v-col>
+            <v-col :cols="6" class="d-flex align-center">
+              <template v-if="selectedItem.item.type === ItemTypes.FOOD">
+                <v-btn class="mr-1" @click="handleEatOne">EAT</v-btn>
+                <v-btn class="mr-1" @click="handleDropOne">DROP</v-btn>
+              </template>
+              <template v-else-if="selectedItem.item.type === ItemTypes.HOUSE">
+                <v-btn class="mr-1" @click="handleDropOne">DROP</v-btn>
+              </template>
+            </v-col>
+          </v-row>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -49,7 +66,7 @@ export default {
   data() {
     return {
       backpackDialog: false,
-      selectedItemIdx: 0,
+      selectedItemId: undefined,
       HeroinController,
       ItemTypes,
     };
@@ -57,36 +74,81 @@ export default {
   methods: {
     openBackpack() {
       this.backpackDialog = true;
-      this.selectedItemIdx = 0;
+      if (!this.selectedItemId) {
+        if (this.HeroinController.heroine.package.firstItem) {
+          this.selectedItemId = this.HeroinController.heroine.package.firstItem.item.id;
+        }
+      }
     },
     handleEatOne() {
       this.HeroinController.eatFood(this.selectedItem.item.id, 1);
     },
     handleDropOne() {
-      
-    }
+      this.HeroinController.dropItem(this.selectedItem.item.id, 1);
+    },
+    itemDisplay(item) {
+      if (!item) {
+        return "NO ITEM SELECTED";
+      }
+      if (item.item.type === ItemTypes.FOOD) {
+        return `
+        <div>${item.item.id} x ${item.amount}</div>
+        <div>FOOD+${item.item.typeValue}</div>
+        `;
+      }
+      if (item.item.type === ItemTypes.HOUSE) {
+        return `
+        <div>${item.item.id} x ${item.amount}</div>
+        <div>ANTI-RAIN+${item.item.antiRain}</div>
+        <div>ANTI-WIND+${item.item.antiWind}</div>
+        `;
+      }
+      return "???";
+    },
+    // actionDisplay(item) {
+    //   if (!item) {
+    //     return "";
+    //   }
+    //   if (item.item.type === ItemTypes.FOOD) {
+    //     return `
+    //     <v-btn class="mr-1" @click="handleEatOne">EAT</v-btn>
+    //     <v-btn class="mr-1" @click="handleDropOne">DROP</v-btn>
+    //     `;
+    //   }
+    //   if (item.item.type === ItemTypes.HOUSE) {
+    //     return `
+    //     <v-btn class="mr-1" @click="handleDropOne">DROP</v-btn>
+    //     `;
+    //   }
+    //   return `<v-btn class="mr-1">???</v-btn>`;
+    // },
   },
   computed: {
     package() {
       return this.HeroinController.heroine.package;
     },
     packageItems() {
-      return this.HeroinController.heroine.package.items;
+      const sortedItems = this.HeroinController.heroine.package.sortedItems;
+      const mappedItems = [];
+      for (let key of Object.keys(sortedItems)) {
+        if (sortedItems[key].length) {
+          mappedItems.push({
+            title: key,
+            items: sortedItems[key],
+          });
+        }
+      }
+      return mappedItems;
     },
     itemHasAction() {
-      return !!this.packageItems[this.selectedItemIdx];
+      return !!this.selectedItemId;
     },
     selectedItem() {
-      return this.packageItems[this.selectedItemIdx];
+      const packageItems = this.HeroinController.heroine.package.items;
+      return packageItems.find((item) => item.item.id === this.selectedItemId);
     },
   },
-  filters: {
-    foodItemDisplay(item) {
-      return item
-        ? `${item.item.id} x ${item.amount} +${item.item.typeValue} FOOD`
-        : "NO ITEM SELECTED";
-    },
-  },
+  filters: {},
 };
 </script>
 <style lang="scss">

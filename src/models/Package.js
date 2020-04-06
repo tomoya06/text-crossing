@@ -1,4 +1,4 @@
-import Item from "./Items/Item";
+import Item, { ItemTypes } from "./Items/Item";
 import PackageItem from "./Package/PackageItem";
 
 export default class Package {
@@ -13,6 +13,24 @@ export default class Package {
     return this.items.reduce((a, b) => a.itemWeight + b.itemWeight, 0);
   }
 
+  get sortedItems() {
+    const sorted = {};
+    for (let itemType of Object.keys(ItemTypes)) {
+      sorted[`${ItemTypes[itemType]}`] = []
+    }
+    for (let item of this.items) {
+      sorted[`${item.item.type}`].push(item); 
+    }
+    return sorted;
+  }
+
+  get firstItem() {
+    if (this.items.length) {
+      return this.items[0];
+    }
+    return undefined;
+  }
+
   /**
    * TODO: combine same items with amount
    * @param {Item} item
@@ -21,25 +39,12 @@ export default class Package {
     if (item.weight + this.curCarry > this.maxCarry) {
       return false;
     }
-    const sameItems = this.items.find(_item => _item.item.id === item.id);
+    const sameItems = this.items.find((_item) => _item.item.id === item.id);
     if (sameItems) {
       sameItems.amount += amount;
     } else {
       this.items.push(new PackageItem(item, amount));
     }
-    return true;
-  }
-
-  drop(index, amount = 1) {
-    if (!this.items[index]) {
-      return false;
-    }
-    if (this.items[index].amount === amount) {
-      this.items.splice(index, 1);
-    } else {
-      this.items[index].amount -= amount;
-    }
-    this.cleanEmptyItem();
     return true;
   }
 
@@ -55,10 +60,10 @@ export default class Package {
   }
 
   find(itemId) {
-    return this.items.find(item => item.item.id === itemId);
+    return this.items.find((item) => item.item.id === itemId);
   }
 
   cleanEmptyItem() {
-    this.items = this.items.filter(packageItem => packageItem.amount > 0);
+    this.items = this.items.filter((packageItem) => packageItem.amount > 0);
   }
 }

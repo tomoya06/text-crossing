@@ -55,6 +55,10 @@ class HeroineController {
     this.heroine.eatFood(itemId, amount);
   }
 
+  dropItem(itemId, amount) {
+    this.heroine.dropItem(itemId, amount);
+  }
+
   changeActivity(activityState) {
     this.heroine.changeActivity(activityState);
   }
