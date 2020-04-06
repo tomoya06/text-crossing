@@ -17,13 +17,12 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-card-text
-                class="flex-grow-1"
+                class="flex-grow-1 pa-0 my-2"
                 style="overflow-y: scroll; height: 0;"
+                id="msgContainer"
               >
-                <div class="fill-height">
-                  <div v-for="(msg, idx) in messageList" :key="idx">
-                    {{ msg }}
-                  </div>
+                <div v-for="(msg, idx) in messageList" :key="idx" class="px-2">
+                  {{ msg }}
                 </div>
               </v-card-text>
               <v-card-actions class="d-block px-0 pb-0">
@@ -68,22 +67,27 @@ export default {
   data() {
     return {
       displayGameTime: "",
+      heroineState: "",
+      messageList: [],
       TimeController,
       HeroineController,
       WeatherController,
       WorldController,
       MessageController,
-      heroineState: "",
     };
   },
   created() {
     window.game = this;
     this.bindTime();
-
     this.HeroineController.onActivityStateChange((state) => {
       this.heroineState = state;
     });
-
+    this.MessageController.handleNewMessage((msg) => {
+      this.messageList.push(msg);
+      this.$nextTick(() => {
+        this.scrollMsg();
+      });
+    });
     this.HeroineController.goHome();
   },
   filters: {
@@ -98,15 +102,16 @@ export default {
     island() {
       return this.WorldController.island;
     },
-    messageList() {
-      return this.MessageController.messages;
-    },
   },
   methods: {
     bindTime() {
       TimeController.onTimeChange((tm) => {
         this.displayGameTime = tm.format("YYYY MMM DD HH:mm");
       });
+    },
+    scrollMsg() {
+      let container = this.$el.querySelector("#msgContainer");
+      container.scrollTop = container.scrollHeight;
     },
   },
   components: {

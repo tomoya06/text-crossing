@@ -9,8 +9,9 @@ class MessageController {
 
   sendMessage(msg) {
     const curGameTime = TimeController.gameTime.clone().format('HH:mm:ss');
-    this.messages.push(`${curGameTime}: ${msg}`);
-    this._eventEmitter.emit("NEWMSG", msg, this.messages);
+    const newMsg = `${curGameTime}: ${msg}`;
+    this.messages.push(newMsg);
+    this._eventEmitter.emit("NEWMSG", newMsg, this.messages);
   }
 
   handleNewMessage(fn) {
